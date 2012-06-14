@@ -4,18 +4,15 @@ module Robokassa
   class InvalidSignature < ArgumentError; end
 
   class Interface
-    def initialize(options)
-      @options = options
-    end
 
-    notification_params_map = {
+    @@notification_params_map = {
         'OutSum'         => :amount,
         'InvId'          => :invoice_id,
         'SignatureValue' => :signature,
         'Culture'        => :language
-      }
+    }
 
-    params_map = {
+    @@params_map = {
         'MrchLogin'      => :login,
         'OutSum'         => :amount,
         'InvId'          => :invoice_id,
@@ -24,15 +21,18 @@ module Robokassa
         'IncCurrLabel'   => :currency,
         'Culture'        => :language,
         'SignatureValue' => :signature
-      }.invert
+    }.invert
 
-    service_params_map = {
+    @@service_params_map = {
         'MerchantLogin'  => :login,
         'Language'       => :language,
         'IncCurrLabel'   => :currency,
         'OutSum'         => :amount
-      }.invert
+    }.invert
 
+    def initialize(options)
+      @options = options
+    end
 
     # Indicate if calling api in test mode
     # === Returns
@@ -43,7 +43,6 @@ module Robokassa
 
     # build signature string
     def response_signature_string(parsed_params)
-      p parsed_params
       custom_options_fmt = parsed_params[:custom_options].sort.map{|x|"shp#{x[0]}=x[1]]"}.join(":")
       "#{parsed_params[:amount]}:#{parsed_params[:invoice_id]}:#{@options[:password2]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
     end
@@ -54,7 +53,7 @@ module Robokassa
     end
 
     def validate_signature(params)
-      parsed_params = map_params(params, notification_params_map)
+      parsed_params = map_params(params, @@notification_params_map)
       parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
       if response_signature(parsed_params) != parsed_params[:signature].downcase
         raise Robokassa::InvalidSignature
@@ -65,7 +64,7 @@ module Robokassa
     def notify(params, controller)
       begin
         validate_signature(params)
-        parsed_params = map_params(params, notification_params_map)
+        parsed_params = map_params(params, @@notification_params_map)
         notify_implementation(
           parsed_params[:invoice_id],
           parsed_params[:amount],
@@ -82,7 +81,7 @@ module Robokassa
     # It requires Robokassa::Interface.success_implementation to be inmplemented by user
     def success(params, controller)
       validate_signature(params)
-      parsed_params = map_params(params, notification_params_map)
+      parsed_params = map_params(params, @@notification_params_map)
       success_implementation(
         parsed_params[:invoice_id],
         parsed_params[:amount],
@@ -94,7 +93,7 @@ module Robokassa
     # Fail callback requiest handler
     # It requires Robokassa::Interface.fail_implementation to be inmplemented by user
     def fail(params, controller)
-      parsed_params = map_params(params, notification_params_map)
+      parsed_params = map_params(params, @@notification_params_map)
       fail_implementation(
         parsed_params[:invoice_id],
         parsed_params[:amount],
@@ -114,6 +113,11 @@ module Robokassa
       "#{init_payment_base_url}?" + url_options.map do |k, v| "#{CGI::escape(k.to_s)}=#{CGI::escape(v.to_s)}" end.join('&')
     end
 
+    # Maps gem parameter names, to robokassa names
+    def map_params(params, map)
+      Hash[params.map do|key, value| [(map[key] || map[key.to_sym] || key), value] end]
+    end
+
     # make hash of options for init_payment_url
     def init_payment_options(invoice_id, amount, description, custom_options = {}, currency='', language='ru', email='')
       options = {
@@ -126,7 +130,7 @@ module Robokassa
         :email       => email,
         :language    => language
       }.merge(Hash[custom_options.sort.map{|x| ["shp#{x[0]}", x[1]]}])
-      map_params(options, params_map)
+      map_params(options, @@params_map)
     end
 
     # calculates md5 from result of :init_payment_signature_string
@@ -152,11 +156,6 @@ module Robokassa
 
     def md5(str) #:nodoc:
       Digest::MD5.hexdigest(str).downcase
-    end
-
-    # Maps gem parameter names, to robokassa names
-    def map_params(params, map)
-      Hash[params.map do|key, value| [(map[key] || map[key.to_sym] || key), value] end]
     end
   end
 end

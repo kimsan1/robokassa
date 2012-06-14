@@ -29,33 +29,33 @@ Create `config/initializers/robokassa.rb` with such code
 
 ```ruby
 
-  class MyRobo < Robokassa::Interface
-    class << self
-      def get_options_by_notification_key(key)
-        {
-          language: 'ru',
-          test_mode: true,
-          login: 'robox_login',
-          password1: 'asdf1234',
-          password2: 'qwer5678'
-        }
-      end
+    class MyRobo < Robokassa::Interface
+        class << self
 
-      def success_implementation(invoice_id, *args)
-        Payment.find(invoice_id).confirm!
-      end
+          def success_implementation(invoice_id, amount, language, custom_options)
+            # this is called to show user payment success page
+            # Mostly secure to rely on
+          end
 
-      def fail_implementation(invoice_id, *args)
-        Payment.find(invoice_id).mark_failed!
-      end
+          def fail_implementation(invoice_id, *args)
+            # this is called to show user payment fail page and unlock inventory stocks for order
+            # INSECURE
+          end
 
-      def notify_implementation(invoice_id, *args)
-        Payment.find(invoice_id).verifity!
-      end
+          def notify_implementation(invoice_id, *args)
+            # this is called by robokassa server, to actually validate payment
+            # Secure.
+          end
+        end
     end
-  end
-    
-  Robokassa.interface_class = MyRobo
+
+    Robokassa.interface = RoboCustom.new({
+        language: 'ru',
+        test_mode: true,
+        login: 'robox_login',
+        password1: 'asdf1234',
+        password2: 'qwer5678'
+    })
 ```
 
 In View file:
