@@ -32,17 +32,17 @@ Create `config/initializers/robokassa.rb` with such code
     class MyRobo < Robokassa::Interface
         class << self
 
-          def success_implementation(invoice_id, amount, language, custom_options)
+          def success_implementation(invoice_id, amount, language, custom_options, controller)
             # this is called to show user payment success page
             # Mostly secure to rely on
           end
 
-          def fail_implementation(invoice_id, *args)
+          def fail_implementation(invoice_id, amount, language, custom_options, controller)
             # this is called to show user payment fail page and unlock inventory stocks for order
             # INSECURE
           end
 
-          def notify_implementation(invoice_id, *args)
+          def notify_implementation(invoice_id, amount, custom_options, controller)
             # this is called by robokassa server, to actually validate payment
             # Secure.
           end
