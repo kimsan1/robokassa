@@ -48,24 +48,44 @@ module Robokassa
     end
 
     # build signature string
-    def response_signature_string(parsed_params)
+    def notify_response_signature_string(parsed_params)
       custom_options_fmt = parsed_params[:custom_options].sort.map{|x|"shp#{x[0]}=x[1]]"}.join(":")
       "#{parsed_params[:amount]}:#{parsed_params[:invoice_id]}:#{@options[:password2]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
     end
 
     # calculates signature to check params from Robokassa
-    def response_signature(parsed_params)
-      p response_signature_string(parsed_params)
-      md5 response_signature_string(parsed_params)
+    def notify_response_signature(parsed_params)
+      p notify_response_signature_string(parsed_params)
+      md5 notify_response_signature_string(parsed_params)
     end
 
-    def validate_signature(params)
+    def notify_validate_signature(params)
       parsed_params = map_params(params, @@notification_params_map)
       parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
-      if response_signature(parsed_params) != parsed_params[:signature].downcase
+      if notify_response_signature(parsed_params) != parsed_params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
     end
+
+    # build signature string
+    def success_response_signature_string(parsed_params)
+      custom_options_fmt = parsed_params[:custom_options].sort.map{|x|"shp#{x[0]}=x[1]]"}.join(":")
+      "#{parsed_params[:amount]}:#{parsed_params[:invoice_id]}:#{@options[:password1]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
+    end
+
+    # calculates signature to check params from Robokassa
+    def success_response_signature(parsed_params)
+      md5 success_response_signature_string(parsed_params)
+    end
+
+    def success_validate_signature(params)
+      parsed_params = map_params(params, @@notification_params_map)
+      parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
+      if success_response_signature(parsed_params) != parsed_params[:signature].downcase
+        raise Robokassa::InvalidSignature.new
+      end
+    end
+
 
     # This method verificates request params recived from robocassa server
     def notify(params, controller)
@@ -87,7 +107,7 @@ module Robokassa
     # this method calls from RobokassaController
     # It requires Robokassa::Interface.success_implementation to be inmplemented by user
     def success(params, controller)
-      validate_signature(params)
+      success_validate_signature(params)
       parsed_params = map_params(params, @@notification_params_map)
       success_implementation(
         parsed_params[:invoice_id],

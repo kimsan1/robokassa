@@ -55,7 +55,7 @@ Create `config/initializers/robokassa.rb` with such code
         login: 'robox_login',
         password1: 'asdf1234',
         password2: 'qwer5678',
-        token: 'qwer1234' # "robokassa/:token/notify"
+        token: 'qwer1234' # "robokassa/notify/:token"
     })
 ```
 
