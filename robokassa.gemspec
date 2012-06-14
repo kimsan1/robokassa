@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "rails", ">= 3.2.0"
-  s.add_dependency "nokogiri", ">= 3.2.0"
+  s.add_dependency "nokogiri"
   
   s.add_development_dependency "rspec"
   s.add_development_dependency 'rspec-rails', '>= 2.5.0'
