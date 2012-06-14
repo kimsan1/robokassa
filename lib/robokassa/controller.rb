@@ -2,9 +2,7 @@ class Robokassa::Controller < ActionController::Base
   protect_from_forgery :only => []
 
   def notify
-    interface = Robokassa.interface_class.create_by_notification_key params[:notification_key]
-    params.delete :notification_key
-    render :text => interface.notify(params, self)
+    render :text => Robokassa.interface_class.notify(params, self)
   end
 
   def success
