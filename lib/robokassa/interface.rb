@@ -1,7 +1,9 @@
 require 'cgi'
+require 'digest/md5'
 
 module Robokassa
   class InvalidSignature < ArgumentError; end
+  class InvalidToken < ArgumentError; end
 
   class Interface
 
@@ -34,6 +36,10 @@ module Robokassa
       @options = options
     end
 
+    def token
+      @options[:token]
+    end
+
     # Indicate if calling api in test mode
     # === Returns
     # true or false
@@ -49,6 +55,7 @@ module Robokassa
 
     # calculates signature to check params from Robokassa
     def response_signature(parsed_params)
+      p response_signature_string(parsed_params)
       md5 response_signature_string(parsed_params)
     end
 
@@ -56,7 +63,7 @@ module Robokassa
       parsed_params = map_params(params, @@notification_params_map)
       parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
       if response_signature(parsed_params) != parsed_params[:signature].downcase
-        raise Robokassa::InvalidSignature
+        raise Robokassa::InvalidSignature.new
       end
     end
 

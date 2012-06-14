@@ -2,6 +2,9 @@ class Robokassa::Controller < ActionController::Base
   protect_from_forgery :only => []
 
   def notify
+    if params[:token] != Robokassa.interface.token
+        raise Robokassa::InvalidToken.new
+    end
     render :text => Robokassa.interface.notify(params, self)
   end
 
