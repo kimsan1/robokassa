@@ -1,3 +1,8 @@
+About this fork
+-------
+
+Everything I didn't need is removed. Added signature verification where possible. Fixed a lot of stuff that didn't work for me
+
 SUMMARY
 -------
 
@@ -28,6 +33,7 @@ Create `config/initializers/robokassa.rb` with such code
     class << self
       def get_options_by_notification_key(key)
         {
+          language: 'ru',
           test_mode: true,
           login: 'robox_login',
           password1: 'asdf1234',
@@ -55,7 +61,7 @@ Create `config/initializers/robokassa.rb` with such code
 In View file:
 
 ```ERB
-<% pay_url = Robokassa.client.init_payment_url(order.id, order.amount, "Order #{order}", '', 'ru', order.user.email, {}) %>
+<% pay_url = Robokassa.interface_class.init_payment_url(order.id, order.amount, "Order #{order}", '', 'ru', order.user.email, {}) %>
 <%= link_to "Оплатить через сервис ROBOX", pay_url %>
 ```
 

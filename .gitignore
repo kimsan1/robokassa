@@ -6,3 +6,4 @@ pkg/*
 *.swo
 config.ru
 spec/internal
+.idea
