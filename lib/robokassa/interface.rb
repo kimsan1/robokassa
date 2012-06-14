@@ -1,13 +1,12 @@
-require 'rails'
 require 'cgi'
-require 'net/http'
-require 'net/https'
-require 'open-uri'
-require 'rexml/document'
 
 module Robokassa
   class InvalidSignature < ArgumentError; end
 
+  def self.setup
+    yield self
+  end
+  
   class Interface
     cattr_accessor :config
 
