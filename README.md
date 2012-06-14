@@ -23,15 +23,8 @@ Update your bundle
 Create `config/initializers/robokassa.rb` with such code
 
 ```ruby
-Robokassa::Interface
 
-module Robokassa
-
-  def self.client
-    Interface.new Interface.get_options_by_notification_key(nil)
-  end
-
-  class Interface
+  class MyRobo < Robokassa::Interface
     class << self
       def get_options_by_notification_key(key)
         {
@@ -55,7 +48,8 @@ module Robokassa
       end
     end
   end
-end
+    
+  Robokassa.interface_class = MyRobo
 ```
 
 In View file:
@@ -67,7 +61,7 @@ In View file:
 
 In Robokassa account settings set:
 
-    Result URL: http://example.com/robokassa/default/notify
+    Result URL: http://example.com/robokassa/notify
     Success URL: http://example.com/robokassa/success
     Fail URL: http://example.com/robokassa/fail
 

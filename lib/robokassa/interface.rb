@@ -3,10 +3,6 @@ require 'cgi'
 module Robokassa
   class InvalidSignature < ArgumentError; end
 
-  def self.setup
-    yield self
-  end
-  
   class Interface
     cattr_accessor :config
 

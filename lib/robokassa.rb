@@ -1,5 +1,4 @@
 module Robokassa
-  p 'load robokassa'
   mattr_accessor :interface_class
 
   # this allow use custom class for handeling api responces
