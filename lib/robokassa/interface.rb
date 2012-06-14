@@ -66,7 +66,7 @@ module Robokassa
     # build signature string
     def self.response_signature_string(parsed_params)
       custom_options_fmt = parsed_params[:custom_options].sort.map{|x|"shp#{x[0]}=x[1]]"}.join(":")
-      "#{parsed_params[:amount]}:#{parsed_params[:invoice_id]}:#{@options[:password2]}#{unless custom_options_fmt.blank? then ":" + custom_options_fmt else "" end}"
+      "#{parsed_params[:amount]}:#{parsed_params[:invoice_id]}:#{@options[:password2]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
     end
     
     # calculates signature to check params from Robokassa
@@ -158,7 +158,7 @@ module Robokassa
     # generates signature string to calculate 'SignatureValue' url parameter
     def init_payment_signature_string(invoice_id, amount, description, custom_options={})
       custom_options_fmt = custom_options.sort.map{|x|"shp#{x[0]}=#{x[1]}"}.join(":")
-      "#{@options[:login]}:#{amount}:#{invoice_id}:#{@options[:password1]}#{unless custom_options_fmt.blank? then ":" + custom_options_fmt else "" end}"
+      "#{@options[:login]}:#{amount}:#{invoice_id}:#{@options[:password1]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
     end
 
     # returns http://test.robokassa.ru or https://merchant.roboxchange.com in order to current mode
