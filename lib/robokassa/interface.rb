@@ -55,7 +55,6 @@ module Robokassa
 
     # calculates signature to check params from Robokassa
     def notify_response_signature(parsed_params)
-      p notify_response_signature_string(parsed_params)
       md5 notify_response_signature_string(parsed_params)
     end
 
