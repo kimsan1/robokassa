@@ -90,7 +90,7 @@ module Robokassa
     # This method verificates request params recived from robocassa server
     def notify(params, controller)
       begin
-        validate_signature(params)
+        notify_validate_signature(params)
         parsed_params = map_params(params, @@notification_params_map)
         notify_implementation(
           parsed_params[:invoice_id],
