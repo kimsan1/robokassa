@@ -29,40 +29,37 @@ Create `config/initializers/robokassa.rb` with such code
 
 ```ruby
 
-    class MyRobo < Robokassa::Interface
-        class << self
+    class RoboCustom < Robokassa::Interface
+      def success_implementation(invoice_id, amount, language, custom_options, controller)
+        # this is called to show user payment success page
+        # Mostly secure to rely on
+      end
 
-          def success_implementation(invoice_id, amount, language, custom_options, controller)
-            # this is called to show user payment success page
-            # Mostly secure to rely on
-          end
+      def fail_implementation(invoice_id, amount, language, custom_options, controller)
+        # this is called to show user payment fail page and unlock inventory stocks for order
+        # INSECURE
+      end
 
-          def fail_implementation(invoice_id, amount, language, custom_options, controller)
-            # this is called to show user payment fail page and unlock inventory stocks for order
-            # INSECURE
-          end
-
-          def notify_implementation(invoice_id, amount, custom_options, controller)
-            # this is called by robokassa server, to actually validate payment
-            # Secure.
-          end
-        end
+      def notify_implementation(invoice_id, amount, custom_options, controller)
+        # this is called by robokassa server, to actually validate payment
+        # Secure.
+      end
     end
 
     Robokassa.interface = RoboCustom.new({
-        language: 'ru',
-        test_mode: true,
-        login: 'robox_login',
-        password1: 'asdf1234',
-        password2: 'qwer5678',
-        token: 'qwer1234' # "robokassa/notify/:token"
+      language: 'ru',
+      test_mode: true,
+      login: 'robox_login',
+      password1: 'asdf1234',
+      password2: 'qwer5678',
+      token: 'qwer1234' # "robokassa/notify/:token"
     })
 ```
 
 In View file:
 
 ```ERB
-<% pay_url = Robokassa.interface_class.init_payment_url(order.id, order.amount, "Order #{order}", '', 'ru', order.user.email, {}) %>
+<% pay_url = Robokassa.interface.init_payment_url(order.id, order.amount, "Order #{order}", '', 'ru', order.user.email, {}) %>
 <%= link_to "Оплатить через сервис ROBOX", pay_url %>
 ```
 
