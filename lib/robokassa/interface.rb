@@ -49,7 +49,7 @@ module Robokassa
 
     # build signature string
     def notify_response_signature_string(parsed_params)
-      custom_options_fmt = parsed_params[:custom_options].sort.map{|x|"shp#{x[0]}=x[1]]"}.join(":")
+      custom_options_fmt = parsed_params[:custom_options].sort.map{|x|"shp#{x[0]}=#{x[1]}"}.join(":")
       "#{parsed_params[:amount]}:#{parsed_params[:invoice_id]}:#{@options[:password2]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
     end
 
@@ -68,7 +68,7 @@ module Robokassa
 
     # build signature string
     def success_response_signature_string(parsed_params)
-      custom_options_fmt = parsed_params[:custom_options].sort.map{|x|"shp#{x[0]}=x[1]]"}.join(":")
+      custom_options_fmt = parsed_params[:custom_options].sort.map{|x|"shp#{x[0]}=#{x[1]}"}.join(":")
       "#{parsed_params[:amount]}:#{parsed_params[:invoice_id]}:#{@options[:password1]}#{custom_options_fmt.blank? ? "" : ":" + custom_options_fmt}"
     end
 
