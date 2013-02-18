@@ -1,10 +1,6 @@
-require 'cgi'
-require 'digest/md5'
+
 
 module Robokassa
-  class InvalidSignature < ArgumentError; end
-  class InvalidToken < ArgumentError; end
-
   class Interface
 
     @@notification_params_map = {
