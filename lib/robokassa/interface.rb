@@ -81,7 +81,7 @@ module Robokassa
     # This method verificates request params recived from robocassa server
     def notify(params, controller)
       begin
-        parsed_params = parse_params
+        parsed_params = parse_params params
         notify_validate_signature(parsed_params)
         notify_implementation(
           parsed_params[:invoice_id],
@@ -98,7 +98,7 @@ module Robokassa
     # this method calls from RobokassaController
     # It requires Robokassa::Interface.success_implementation to be inmplemented by user
     def success(params, controller)
-      parsed_params = parse_params
+      parsed_params = parse_params params
       success_validate_signature(parsed_params)
       success_implementation(
         parsed_params[:invoice_id],
@@ -111,7 +111,7 @@ module Robokassa
     # Fail callback requiest handler
     # It requires Robokassa::Interface.fail_implementation to be inmplemented by user
     def fail(params, controller)
-      parsed_params = parse_params
+      parsed_params = parse_params params
       fail_implementation(
         parsed_params[:invoice_id],
         parsed_params[:amount],
@@ -120,7 +120,7 @@ module Robokassa
         controller)
     end
 
-    def parse_params
+    def parse_params(params)
       parsed_params = map_params(params, @@notification_params_map)
       parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
       parsed_params
