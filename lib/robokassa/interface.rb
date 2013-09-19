@@ -55,7 +55,6 @@ module Robokassa
     end
 
     def notify_validate_signature(params)
-      parsed_params = parsed_params
       if notify_response_signature(parsed_params) != parsed_params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
@@ -73,7 +72,6 @@ module Robokassa
     end
 
     def success_validate_signature(params)
-      parsed_params = parsed_params
       if success_response_signature(parsed_params) != parsed_params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
@@ -83,7 +81,8 @@ module Robokassa
     # This method verificates request params recived from robocassa server
     def notify(params, controller)
       begin
-        notify_validate_signature(params)
+        parsed_params = parse_params
+        notify_validate_signature(parsed_params)
         notify_implementation(
           parsed_params[:invoice_id],
           parsed_params[:amount],
@@ -99,7 +98,8 @@ module Robokassa
     # this method calls from RobokassaController
     # It requires Robokassa::Interface.success_implementation to be inmplemented by user
     def success(params, controller)
-      success_validate_signature(params)
+      parsed_params = parse_params
+      success_validate_signature(parsed_params)
       success_implementation(
         parsed_params[:invoice_id],
         parsed_params[:amount],
@@ -111,7 +111,7 @@ module Robokassa
     # Fail callback requiest handler
     # It requires Robokassa::Interface.fail_implementation to be inmplemented by user
     def fail(params, controller)
-      parsed_params = parsed_params
+      parsed_params = parse_params
       fail_implementation(
         parsed_params[:invoice_id],
         parsed_params[:amount],
