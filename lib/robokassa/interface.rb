@@ -55,8 +55,7 @@ module Robokassa
     end
 
     def notify_validate_signature(params)
-      parsed_params = map_params(params, @@notification_params_map)
-      parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
+      parsed_params = parsed_params
       if notify_response_signature(parsed_params) != parsed_params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
@@ -74,8 +73,7 @@ module Robokassa
     end
 
     def success_validate_signature(params)
-      parsed_params = map_params(params, @@notification_params_map)
-      parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
+      parsed_params = parsed_params
       if success_response_signature(parsed_params) != parsed_params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
@@ -86,7 +84,6 @@ module Robokassa
     def notify(params, controller)
       begin
         notify_validate_signature(params)
-        parsed_params = map_params(params, @@notification_params_map)
         notify_implementation(
           parsed_params[:invoice_id],
           parsed_params[:amount],
@@ -103,7 +100,6 @@ module Robokassa
     # It requires Robokassa::Interface.success_implementation to be inmplemented by user
     def success(params, controller)
       success_validate_signature(params)
-      parsed_params = map_params(params, @@notification_params_map)
       success_implementation(
         parsed_params[:invoice_id],
         parsed_params[:amount],
@@ -115,7 +111,7 @@ module Robokassa
     # Fail callback requiest handler
     # It requires Robokassa::Interface.fail_implementation to be inmplemented by user
     def fail(params, controller)
-      parsed_params = map_params(params, @@notification_params_map)
+      parsed_params = parsed_params
       fail_implementation(
         parsed_params[:invoice_id],
         parsed_params[:amount],
@@ -124,6 +120,11 @@ module Robokassa
         controller)
     end
 
+    def parse_params
+      parsed_params = map_params(params, @@notification_params_map)
+      parsed_params[:custom_options] = Hash[params.select{ |k,v| k.starts_with?('shp') }.sort.map{|k, v| [k[3, k.size], v]}]
+      parsed_params
+    end
 
     # Generates url for payment page
     #
