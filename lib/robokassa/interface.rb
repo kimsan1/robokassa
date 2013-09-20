@@ -55,7 +55,7 @@ module Robokassa
     end
 
     def notify_validate_signature(params)
-      if notify_response_signature(parsed_params) != parsed_params[:signature].downcase
+      if notify_response_signature(params) != params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
     end
@@ -72,7 +72,7 @@ module Robokassa
     end
 
     def success_validate_signature(params)
-      if success_response_signature(parsed_params) != parsed_params[:signature].downcase
+      if success_response_signature(params) != params[:signature].downcase
         raise Robokassa::InvalidSignature.new
       end
     end
